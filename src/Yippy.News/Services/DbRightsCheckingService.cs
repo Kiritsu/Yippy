@@ -11,7 +11,6 @@ public class DbRightsCheckingService(YippyNewsDbContext db)
     {
         return await db
             .Set<T>()
-            .Where(x => x.UserId == userId && x.Id == resourceId)
-            .AnyAsync();
+            .AnyAsync(x => x.UserId == userId && x.Id == resourceId);
     }
 }
