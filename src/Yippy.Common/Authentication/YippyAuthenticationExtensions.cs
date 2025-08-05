@@ -9,8 +9,9 @@ public static class YippyAuthenticationExtensions
 {
     public static void AddYippyAuthentication(this IServiceCollection @this, Action<AuthorizationOptions>? authorizeAction = null)
     {
-        @this.AddAuthentication("YippyAuth")
-            .AddScheme<YippyAuthenticationOptions, YippyAuthenticationHandler>("YippyAuth", null);
+        @this.AddAuthentication(YippyAuthenticationHandler.AuthenticationScheme)
+            .AddScheme<YippyAuthenticationOptions, YippyAuthenticationHandler>(
+                YippyAuthenticationHandler.AuthenticationScheme, null);
 
         if (authorizeAction != null)
         {

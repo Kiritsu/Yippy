@@ -1,26 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Identity", "Yippy.Identity\Yippy.Identity.csproj", "{A1999303-399C-42E8-94D6-FABF84D14616}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Identity", "src\Yippy.Identity\Yippy.Identity.csproj", "{A1999303-399C-42E8-94D6-FABF84D14616}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Common", "Yippy.Common\Yippy.Common.csproj", "{9055C3AC-3FC1-494C-B056-F37D25CCF43D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Common", "src\Yippy.Common\Yippy.Common.csproj", "{9055C3AC-3FC1-494C-B056-F37D25CCF43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Grpc", "Yippy.Grpc\Yippy.Grpc.csproj", "{947CBEAF-1C70-4E06-95A6-A08A38C8FA52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Grpc", "src\Yippy.Grpc\Yippy.Grpc.csproj", "{947CBEAF-1C70-4E06-95A6-A08A38C8FA52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Messaging", "Yippy.Messaging\Yippy.Messaging.csproj", "{6DA2A350-9E97-42A6-AB96-3A18601708C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Messaging", "src\Yippy.Messaging\Yippy.Messaging.csproj", "{6DA2A350-9E97-42A6-AB96-3A18601708C4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Executables", "Executables", "{260C1E7D-C9A1-4386-9D9C-81D626DCFB14}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{DE8B597F-4794-4002-B9F4-66FA59042DA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Proxy", "Yippy.Proxy\Yippy.Proxy.csproj", "{33BA84E8-A64C-45E1-9B81-51437C412E30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Proxy", "src\Yippy.Proxy\Yippy.Proxy.csproj", "{33BA84E8-A64C-45E1-9B81-51437C412E30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Emailing", "Yippy.Emailing\Yippy.Emailing.csproj", "{CEFFF333-1C45-411E-A729-1AAD4C85D437}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Emailing", "src\Yippy.Emailing\Yippy.Emailing.csproj", "{CEFFF333-1C45-411E-A729-1AAD4C85D437}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Caching", "Yippy.Caching\Yippy.Caching.csproj", "{15A6EB50-5B26-4DE9-AD30-D9E623B900CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Caching", "src\Yippy.Caching\Yippy.Caching.csproj", "{15A6EB50-5B26-4DE9-AD30-D9E623B900CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.News", "Yippy.News\Yippy.News.csproj", "{D6FB076D-6A2D-412E-8F8E-9FB9359A2FD4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.News", "src\Yippy.News\Yippy.News.csproj", "{D6FB076D-6A2D-412E-8F8E-9FB9359A2FD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Web", "Yippy.Web\Yippy.Web.csproj", "{3E9A3BC5-92AD-44C3-AFE2-107636BE7EAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Web", "src\Yippy.Web\Yippy.Web.csproj", "{3E9A3BC5-92AD-44C3-AFE2-107636BE7EAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

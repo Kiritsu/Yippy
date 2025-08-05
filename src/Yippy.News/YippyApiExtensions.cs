@@ -24,7 +24,7 @@ public static class YippyApiExtensions
             return postId.HasValue 
                 ? Results.Ok(new { Id = postId.Value }) 
                 : Results.Problem("PostCreationFailure");
-        }).RequireAuthorization();
+        });
 
         postsGroup.MapGet("/{id:guid}", async ([FromServices] IPostService postService, Guid id) =>
         {

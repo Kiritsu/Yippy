@@ -43,7 +43,7 @@ public class YippyAuthenticationHandler(
         
         var identity = new ClaimsIdentity(response.Claims.Select(x => new Claim(x.Type, x.Value)), "Bearer");
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, "YippyAuth");
+        var ticket = new AuthenticationTicket(principal, AuthenticationScheme);
         
         return AuthenticateResult.Success(ticket);
     }
