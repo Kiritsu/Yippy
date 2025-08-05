@@ -12,6 +12,12 @@ public class EmailingService(IOptions<EmailOptions> options, ILogger<EmailingSer
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // todo: implement something resilient
+        // proposal :
+        //  -> dequeue and insert into a psql database
+        //  -> update status when done or failed
+        //  -> poll (at service startup and sometimes during service lifetime) for unprocessed lines
+        //     and immediatly lock to avoid concurrency issues if the service has multiple instances 
+        //  -> cleanup the table because we don't want to keep traces
         
         using var smtpClient = new SmtpClient();
         
