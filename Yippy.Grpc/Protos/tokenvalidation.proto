@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option csharp_namespace = "Yippy.Identity";
+
+package tokenvalidation;
+
+service TokenValidation {
+  rpc Validate (JwtTokenValidationRequest) returns (JwtTokenValidationResponse);
+}
+
+message JwtTokenValidationRequest {
+  string token = 1;
+}
+
+message JwtTokenValidationResponse {
+  repeated JwtClaim claims = 1;
+  bool isSuccess = 2;
+  
+  message JwtClaim {
+    string type = 1;
+    string value = 2;
+  }
+}

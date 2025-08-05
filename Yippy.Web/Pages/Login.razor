@@ -1,0 +1,343 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <h3>Sign In</h3>
+        
+        @if (_step == LoginStep.Email)
+        {
+            <EditForm Model="@_emailModel" OnValidSubmit="@SendEmailCode" FormName="emailForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <InputText id="email" @bind-Value="_emailModel.Email" class="form-control" 
+                               placeholder="Enter your email" disabled="@_isLoading" />
+                    <ValidationMessage For="@(() => _emailModel.Email)" />
+                </div>
+                
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger">@_errorMessage</div>
+                }
+                
+                <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
+                    @if (_isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    Send Verification Code
+                </button>
+            </EditForm>
+        }
+        else if (_step == LoginStep.Code)
+        {
+            <div class="step-info">
+                <p>We've sent a verification code to <strong>@_emailModel.Email</strong></p>
+                <button type="button" class="btn btn-link p-0" @onclick="GoBackToEmail">
+                    Change email address
+                </button>
+            </div>
+            
+            <EditForm Model="@_codeModel" OnValidSubmit="@ValidateCode" FormName="codeForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                
+                <div class="form-group">
+                    <label for="code">Verification Code</label>
+                    <InputText id="code" @bind-Value="_codeModel.Code" class="form-control" 
+                               placeholder="Enter the code" disabled="@_isLoading" />
+                    <ValidationMessage For="@(() => _codeModel.Code)" />
+                </div>
+                
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger">@_errorMessage</div>
+                }
+                
+                <button type="submit" class="btn btn-success w-100" disabled="@_isLoading">
+                    @if (_isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    Verify & Sign In
+                </button>
+                
+                <button type="button" class="btn btn-outline-secondary w-100 mt-2" 
+                        @onclick="ResendCode" disabled="@(_isLoading || !_canResend)">
+                    @if (_canResend)
+                    {
+                        <text>Resend Code</text>
+                    }
+                    else
+                    {
+                        <text>Resend Code (@_resendCountdown s)</text>
+                    }
+                </button>
+            </EditForm>
+        }
+    </div>
+</div>
+
+<style>
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.step-info {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+</style>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+    
+    private LoginStep _step = LoginStep.Email;
+    private bool _isLoading;
+    private string _errorMessage = string.Empty;
+    
+    // Resend logic
+    private bool _canResend = true;
+    private int _resendCountdown;
+    private Timer? _resendTimer;
+
+    private readonly EmailFormModel _emailModel = new();
+    private readonly CodeFormModel _codeModel = new();
+
+    private enum LoginStep
+    {
+        Email,
+        Code
+    }
+
+    public class EmailFormModel
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class CodeFormModel
+    {
+        [Required(ErrorMessage = "Verification code is required")]
+        public string Code { get; set; } = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is already authenticated
+        var authState = await AuthService.GetAuthStateAsync();
+        if (authState?.IsAuthenticated == true)
+        {
+            NavigateAfterLogin();
+        }
+    }
+    
+    private async Task SendEmailCode()
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        _isLoading = true;
+        _errorMessage = string.Empty;
+        
+        try
+        {
+            var response = await AuthService.SendEmailCodeAsync(_emailModel.Email);
+            if (!response)
+            {
+                _errorMessage = "Unable to send a code to your email. Please try again later.";
+                return;
+            }
+            
+            _step = LoginStep.Code;
+            _codeModel.Code = string.Empty;
+            
+            StartResendTimer();
+            
+            // Focus on code input
+            await Task.Delay(100);
+            await Js.InvokeVoidAsync("document.getElementById", "code");
+        }
+        catch (Exception)
+        {
+            _errorMessage = "An unexpected error occurred. Please try again.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ValidateCode()
+    {
+        if (_isLoading)
+        {
+            return;
+        }
+
+        _isLoading = true;
+        _errorMessage = string.Empty;
+        
+        try
+        {
+            if (!Guid.TryParse(_codeModel.Code, out var accessKey))
+            {
+                _errorMessage = "Invalid verification code. Please try again.";
+                _codeModel.Code = string.Empty;
+            }
+            
+            var response = await AuthService.ValidateCodeAsync(accessKey);
+            if (response is null)
+            {
+                _errorMessage = "Invalid verification code. Please try again.";
+                return;
+            }
+            
+            NavigateAfterLogin();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Invalid verification code. Please try again.";
+            _codeModel.Code = string.Empty;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void GoBackToEmail()
+    {
+        _step = LoginStep.Email;
+        _errorMessage = string.Empty;
+        StopResendTimer();
+    }
+
+    private async Task ResendCode()
+    {
+        if (!_canResend || _isLoading)
+        {
+            return;
+        }
+
+        _isLoading = true;
+        _errorMessage = string.Empty;
+        
+        try
+        {
+            var response = await AuthService.SendEmailCodeAsync(_emailModel.Email);
+            if (!response)
+            {
+                _errorMessage = "Unable to send a code to your email. Please try again later.";
+                return;
+            }
+            
+            StartResendTimer();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to resend code. Please try again.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void StartResendTimer()
+    {
+        _canResend = false;
+        _resendCountdown = 60;
+        _resendTimer = new Timer(_ =>
+        {
+            _resendCountdown--;
+            if (_resendCountdown <= 0)
+            {
+                _canResend = true;
+                StopResendTimer();
+            }
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private void StopResendTimer()
+    {
+        _resendTimer?.Dispose();
+        _resendTimer = null;
+        _canResend = true;
+        _resendCountdown = 0;
+    }
+    
+    private void NavigateAfterLogin()
+    {
+        var redirectUrl = GetSafeRedirectUrl();
+        Navigation.NavigateTo(redirectUrl, replace: true);
+    }
+
+    private string GetSafeRedirectUrl()
+    {
+        // If no return URL specified, go to home
+        if (string.IsNullOrEmpty(ReturnUrl))
+        {
+            return "/";
+        }
+
+        // Decode the URL
+        var decodedUrl = Uri.UnescapeDataString(ReturnUrl);
+        
+        // Security: Only allow relative URLs to prevent open redirect attacks
+        if (Uri.TryCreate(decodedUrl, UriKind.Relative, out _))
+        {
+            return decodedUrl;
+        }
+        
+        // If it's an absolute URL, check if it's from the same host
+        if (!Uri.TryCreate(decodedUrl, UriKind.Absolute, out var absoluteUri))
+        {
+            return "/";
+        }
+        
+        var currentUri = new Uri(Navigation.BaseUri);
+        return string.Equals(absoluteUri.Host, currentUri.Host, StringComparison.OrdinalIgnoreCase) 
+            ? absoluteUri.PathAndQuery :
+            "/"; // If we can't safely redirect, go to home
+    }
+
+    public void Dispose()
+    {
+        StopResendTimer();
+    }
+}

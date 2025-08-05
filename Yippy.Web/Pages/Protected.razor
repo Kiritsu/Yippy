@@ -1,0 +1,28 @@
+﻿@page "/protected"
+@using Microsoft.AspNetCore.Authorization
+@using Yippy.Web.Authentication.Models
+@attribute [Authorize]
+@inject IAuthService AuthService
+
+<h3>Protected Content</h3>
+<p>This content is only visible to authenticated users.</p>
+
+@if (_state != null)
+{
+    <p>Hello @_state.Email</p>
+    
+    @foreach (var claim in _state.Claims)
+    {
+        <p>@claim.Key @claim.Value</p>
+    }
+}
+
+@code {
+    private AuthState? _state;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _state = await AuthService.GetAuthStateAsync();
+        // Use authenticated HTTP calls here
+    }
+}

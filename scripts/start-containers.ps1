@@ -1,0 +1,2 @@
+docker run --name my-postgres -e POSTGRES_USER=yippy -e POSTGRES_PASSWORD=Yippy!1234 -e POSTGRES_DB=identity -p 5432:5432 --restart always -d postgres
+docker run --name my-rabbitmq -p 5672:5672 -p 15672:15672 --restart always -d rabbitmq:management

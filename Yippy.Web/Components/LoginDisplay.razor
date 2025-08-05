@@ -1,0 +1,24 @@
+﻿@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <div class="user-info">
+            <span>Hello, @context.User.Identity?.Name!</span>
+            <button class="btn btn-outline-secondary btn-sm ms-2" @onclick="Logout">
+                Logout
+            </button>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <a href="/login" class="btn btn-primary">Login</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/", replace: true);
+    }
+}
