@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Yippy.Common.Authentication;
 using Yippy.Common.News;
@@ -16,8 +17,15 @@ public static class YippyApiExtensions
         postsGroup.MapPost("", async (
             ClaimsPrincipal user,
             [FromServices] IPostService postService,
+            [FromServices] IValidator<PostCreateRequest> validator,
             [FromBody] PostCreateRequest request) =>
         {
+            var validationResult = await validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+            
             var userId = user.GetAuthenticatedUserId();
 
             var postId = await postService.CreatePostAsync(request, userId!.Value);
@@ -59,9 +67,16 @@ public static class YippyApiExtensions
             ClaimsPrincipal user,
             [FromServices] IPostService postService,
             [FromServices] DbRightsCheckingService dbRightsCheckingService,
+            [FromServices] IValidator<PostCreateRequest> validator,
             [FromBody] PostCreateRequest request,
             Guid id) =>
         {
+            var validationResult = await validator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Results.ValidationProblem(validationResult.ToDictionary());
+            }
+            
             var userId = user.GetAuthenticatedUserId().GetValueOrDefault();
             
             var hasRights = await dbRightsCheckingService
