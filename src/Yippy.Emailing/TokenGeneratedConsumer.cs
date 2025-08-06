@@ -3,13 +3,14 @@ using Yippy.Messaging;
 
 namespace Yippy.Emailing;
 
-public class TokenGeneratedConsumer(EmailingService emailingService) : IMessageConsumer<TokenGeneratedMessage>
+public class TokenGeneratedConsumer(EmailingService emailingService, ILogger<TokenGeneratedConsumer> logger) 
+    : IMessageConsumer<TokenGeneratedMessage>
 {
-    public Task HandleAsync(TokenGeneratedMessage message, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(TokenGeneratedMessage message, CancellationToken cancellationToken = default)
     {
         // todo: call the gRPC template API to retrieve the token generated message template
         
-        emailingService.Enqueue(new EmailDetail
+        var id = await emailingService.EnqueueAsync(new EmailDetail
         {
             From = new EmailDetail.EmailName("Yippy!", "noreply@alnmrc.com"),
             To = [new EmailDetail.EmailName(message.Email, message.Email)],
@@ -18,6 +19,6 @@ public class TokenGeneratedConsumer(EmailingService emailingService) : IMessageC
             ContentType = "plain"
         });
         
-        return Task.CompletedTask;
+        logger.LogInformation("Enqueued email {Id} into the database", id);
     }
 }

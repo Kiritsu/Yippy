@@ -44,6 +44,10 @@ builder.Services.AddScoped<IPostService, PostService>();
 
 var app = builder.Build();
 
+await using var scope = app.Services.CreateAsyncScope();
+await using var db = scope.ServiceProvider.GetRequiredService<YippyNewsDbContext>();
+await db.Database.MigrateAsync();
+
 app.UseYippySerilogRequestLogging();
 app.MapHealthChecks("/health");
 app.UseYippyAuthentication();

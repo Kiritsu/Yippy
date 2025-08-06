@@ -49,7 +49,7 @@ public class YippyAuthenticationStateProvider : AuthenticationStateProvider
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
 
-    private void OnAuthStateChanged(AuthState authState)
+    private void OnAuthStateChanged(AuthState? authState)
     {
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }

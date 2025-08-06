@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Serilog;
 using Yippy.Common;
 using Yippy.Common.Identity;
 using Yippy.Emailing;
+using Yippy.Emailing.Data;
 using Yippy.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,18 +14,27 @@ builder.Host.UseSerilog((ctx, config) =>
     config.ReadFrom.Configuration(ctx.Configuration);
 });
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("YippyContext")!);
 
 builder.Services.Configure<MessageBrokerOptions>(builder.Configuration.GetSection(MessageBrokerOptions.Name));
 builder.Services.AddRabbitMqMessagingService();
 builder.Services.AddMessageConsumer<TokenGeneratedMessage, TokenGeneratedConsumer>();
+
+builder.Services.AddDbContext<EmailDbContext>(options => 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("YippyContext")));
 
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Smtp"));
 
 builder.Services.AddSingleton<EmailingService>();
 builder.Services.AddHostedService(x => x.GetRequiredService<EmailingService>());
 
+builder.Services.AddScoped<IEmailRepository, EmailRepository>();
+
 var app = builder.Build();
+
+await using var scope = app.Services.CreateAsyncScope();
+await using var db = scope.ServiceProvider.GetRequiredService<EmailDbContext>();
+await db.Database.MigrateAsync();
 
 app.UseYippySerilogRequestLogging();
 app.MapHealthChecks("/health");

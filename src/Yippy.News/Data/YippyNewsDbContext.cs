@@ -10,18 +10,21 @@ public class YippyNewsDbContext(DbContextOptions<YippyNewsDbContext> options) : 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Post>()
-            .Property(e => e.Title)
-            .HasMaxLength(128);
+        modelBuilder.Entity<Post>(post =>
+        {
+            post
+                .Property(e => e.Title)
+                .HasMaxLength(128);
 
-        modelBuilder.Entity<Post>()
-            .Property(e => e.Body)
-            .HasMaxLength(65536);
+            post
+                .Property(e => e.Body)
+                .HasMaxLength(65536);
         
-        modelBuilder.Entity<Post>()
-            .HasMany(x => x.Revisions)
-            .WithOne()
-            .HasForeignKey(x => x.PostId)
-            .OnDelete(DeleteBehavior.Cascade);
+            post
+                .HasMany(x => x.Revisions)
+                .WithOne()
+                .HasForeignKey(x => x.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
