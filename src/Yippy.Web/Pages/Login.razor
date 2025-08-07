@@ -4,129 +4,200 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime Js
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Login - Yippy</PageTitle>
 
-<div class="login-container">
-    <div class="login-card">
-        <h3>Sign In</h3>
-        
-        @if (_step == LoginStep.Email)
-        {
-            <EditForm Model="@_emailModel" OnValidSubmit="@SendEmailCode" FormName="emailForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <InputText id="email" @bind-Value="_emailModel.Email" class="form-control" 
-                               placeholder="Enter your email" disabled="@_isLoading" />
-                    <ValidationMessage For="@(() => _emailModel.Email)" />
-                </div>
-                
-                @if (!string.IsNullOrEmpty(_errorMessage))
-                {
-                    <div class="alert alert-danger">@_errorMessage</div>
-                }
-                
-                <button type="submit" class="btn btn-primary w-100" disabled="@_isLoading">
-                    @if (_isLoading)
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <h1 class="login-title">
+                    @if (_step == LoginStep.Email)
                     {
-                        <span class="spinner-border spinner-border-sm me-2"></span>
-                    }
-                    Send Verification Code
-                </button>
-            </EditForm>
-        }
-        else if (_step == LoginStep.Code)
-        {
-            <div class="step-info">
-                <p>We've sent a verification code to <strong>@_emailModel.Email</strong></p>
-                <button type="button" class="btn btn-link p-0" @onclick="GoBackToEmail">
-                    Change email address
-                </button>
-            </div>
-            
-            <EditForm Model="@_codeModel" OnValidSubmit="@ValidateCode" FormName="codeForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                
-                <div class="form-group">
-                    <label for="code">Verification Code</label>
-                    <InputText id="code" @bind-Value="_codeModel.Code" class="form-control" 
-                               placeholder="Enter the code" disabled="@_isLoading" />
-                    <ValidationMessage For="@(() => _codeModel.Code)" />
-                </div>
-                
-                @if (!string.IsNullOrEmpty(_errorMessage))
-                {
-                    <div class="alert alert-danger">@_errorMessage</div>
-                }
-                
-                <button type="submit" class="btn btn-success w-100" disabled="@_isLoading">
-                    @if (_isLoading)
-                    {
-                        <span class="spinner-border spinner-border-sm me-2"></span>
-                    }
-                    Verify & Sign In
-                </button>
-                
-                <button type="button" class="btn btn-outline-secondary w-100 mt-2" 
-                        @onclick="ResendCode" disabled="@(_isLoading || !_canResend)">
-                    @if (_canResend)
-                    {
-                        <text>Resend Code</text>
+                        <text>Welcome back</text>
                     }
                     else
                     {
-                        <text>Resend Code (@_resendCountdown s)</text>
+                        <text>Verify your email</text>
                     }
-                </button>
-            </EditForm>
-        }
+                </h1>
+                <p class="login-subtitle">
+                    @if (_step == LoginStep.Email)
+                    {
+                        <text>Sign in to your account to continue</text>
+                    }
+                    else
+                    {
+                        <text>Enter the verification code we sent to your email</text>
+                    }
+                </p>
+            </div>
+
+            <div class="card-content">
+                @if (_step == LoginStep.Email)
+                {
+                    <EditForm Model="@_emailModel" OnValidSubmit="@SendEmailCode" FormName="emailForm">
+                        <DataAnnotationsValidator/>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                Email Address
+                            </label>
+                            <div class="input-wrapper">
+                                <InputText id="email" @bind-Value="_emailModel.Email"
+                                           class="form-input"
+                                           placeholder="Enter your email address"
+                                           disabled="@_isLoading"
+                                           autocomplete="email"/>
+                                <div class="input-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => _emailModel.Email)" class="validation-message"/>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-error">
+                                <svg class="alert-icon" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                @_errorMessage
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary" disabled="@_isLoading">
+                            @if (_isLoading)
+                            {
+                                <div class="btn-spinner">
+                                    <div class="spinner"></div>
+                                </div>
+                                <span>Sending Code...</span>
+                            }
+                            else
+                            {
+                                <svg class="btn-icon" viewBox="0 0 24 24">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                </svg>
+                                <span>Send Verification Code</span>
+                            }
+                        </button>
+                    </EditForm>
+                }
+                else if (_step == LoginStep.Code)
+                {
+                    <div class="verification-info">
+                        <div class="verification-badge">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                        </div>
+                        <p class="verification-text">
+                            We've sent a verification code to <strong>@_emailModel.Email</strong>
+                        </p>
+                        <button type="button" class="btn-link" @onclick="GoBackToEmail">
+                            Change email address
+                        </button>
+                    </div>
+
+                    <EditForm Model="@_codeModel" OnValidSubmit="@ValidateCode" FormName="codeForm">
+                        <DataAnnotationsValidator/>
+
+                        <div class="form-group">
+                            <label for="code" class="form-label">
+                                <svg class="label-icon" viewBox="0 0 24 24">
+                                    <path
+                                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                </svg>
+                                Verification Code
+                            </label>
+                            <div class="input-wrapper">
+                                <InputText id="code" @bind-Value="_codeModel.Code"
+                                           class="form-input code-input"
+                                           placeholder="Enter the verification code"
+                                           disabled="@_isLoading"
+                                           autocomplete="one-time-code"/>
+                                <div class="input-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => _codeModel.Code)" class="validation-message"/>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-error">
+                                <svg class="alert-icon" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                @_errorMessage
+                            </div>
+                        }
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-success" disabled="@_isLoading">
+                                @if (_isLoading)
+                                {
+                                    <div class="btn-spinner">
+                                        <div class="spinner"></div>
+                                    </div>
+                                    <span>Verifying...</span>
+                                }
+                                else
+                                {
+                                    <svg class="btn-icon" viewBox="0 0 24 24">
+                                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Verify & Sign In</span>
+                                }
+                            </button>
+
+                            <button type="button" class="btn btn-outline"
+                                    @onclick="ResendCode" disabled="@(_isLoading || !_canResend)">
+                                @if (_canResend)
+                                {
+                                    <svg class="btn-icon" viewBox="0 0 24 24">
+                                        <path
+                                            d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                    </svg>
+                                    <span>Resend Code</span>
+                                }
+                                else
+                                {
+                                    <svg class="btn-icon" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                        <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                    </svg>
+                                    <span>Resend Code (@_resendCountdown s)</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
     </div>
 </div>
 
-<style>
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 80vh;
-    padding: 20px;
-}
-
-.login-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    width: 100%;
-    max-width: 400px;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.step-info {
-    background: #f8f9fa;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-</style>
-
 @code {
+
     [Parameter]
     [SupplyParameterFromQuery(Name = "returnUrl")]
     public string? ReturnUrl { get; set; }
-    
+
     private LoginStep _step = LoginStep.Email;
     private bool _isLoading;
     private string _errorMessage = string.Empty;
-    
-    // Resend logic
+
     private bool _canResend = true;
     private int _resendCountdown;
     private Timer? _resendTimer;
@@ -155,14 +226,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Check if user is already authenticated
         var authState = await AuthService.GetAuthStateAsync();
         if (authState?.IsAuthenticated == true)
         {
             NavigateAfterLogin();
         }
     }
-    
+
     private async Task SendEmailCode()
     {
         if (_isLoading)
@@ -172,7 +242,7 @@
 
         _isLoading = true;
         _errorMessage = string.Empty;
-        
+
         try
         {
             var response = await AuthService.SendEmailCodeAsync(_emailModel.Email);
@@ -181,19 +251,15 @@
                 _errorMessage = "Unable to send a code to your email. Please try again later.";
                 return;
             }
-            
+
             _step = LoginStep.Code;
             _codeModel.Code = string.Empty;
-            
+
             StartResendTimer();
-            
-            // Focus on code input
-            await Task.Delay(100);
-            await Js.InvokeVoidAsync("document.getElementById", "code");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _errorMessage = "An unexpected error occurred. Please try again.";
+            _errorMessage = $"An unexpected error occurred. Please try again: {ex.Message}";
         }
         finally
         {
@@ -210,22 +276,23 @@
 
         _isLoading = true;
         _errorMessage = string.Empty;
-        
+
         try
         {
             if (!Guid.TryParse(_codeModel.Code, out var accessKey))
             {
                 _errorMessage = "Invalid verification code. Please try again.";
                 _codeModel.Code = string.Empty;
+                return;
             }
-            
+
             var response = await AuthService.ValidateCodeAsync(accessKey);
             if (response is null)
             {
                 _errorMessage = "Invalid verification code. Please try again.";
                 return;
             }
-            
+
             NavigateAfterLogin();
         }
         catch (Exception)
@@ -255,7 +322,7 @@
 
         _isLoading = true;
         _errorMessage = string.Empty;
-        
+
         try
         {
             var response = await AuthService.SendEmailCodeAsync(_emailModel.Email);
@@ -264,7 +331,7 @@
                 _errorMessage = "Unable to send a code to your email. Please try again later.";
                 return;
             }
-            
+
             StartResendTimer();
         }
         catch (Exception)
@@ -289,6 +356,7 @@
                 _canResend = true;
                 StopResendTimer();
             }
+
             InvokeAsync(StateHasChanged);
         }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
     }
@@ -300,7 +368,7 @@
         _canResend = true;
         _resendCountdown = 0;
     }
-    
+
     private void NavigateAfterLogin()
     {
         var redirectUrl = GetSafeRedirectUrl();
@@ -309,35 +377,402 @@
 
     private string GetSafeRedirectUrl()
     {
-        // If no return URL specified, go to home
         if (string.IsNullOrEmpty(ReturnUrl))
         {
             return "/";
         }
 
-        // Decode the URL
         var decodedUrl = Uri.UnescapeDataString(ReturnUrl);
-        
-        // Security: Only allow relative URLs to prevent open redirect attacks
+
         if (Uri.TryCreate(decodedUrl, UriKind.Relative, out _))
         {
             return decodedUrl;
         }
-        
-        // If it's an absolute URL, check if it's from the same host
+
         if (!Uri.TryCreate(decodedUrl, UriKind.Absolute, out var absoluteUri))
         {
             return "/";
         }
-        
+
         var currentUri = new Uri(Navigation.BaseUri);
-        return string.Equals(absoluteUri.Host, currentUri.Host, StringComparison.OrdinalIgnoreCase) 
-            ? absoluteUri.PathAndQuery :
-            "/"; // If we can't safely redirect, go to home
+        return string.Equals(absoluteUri.Host, currentUri.Host, StringComparison.OrdinalIgnoreCase)
+            ? absoluteUri.PathAndQuery
+            : "/"; // If we can't safely redirect, go to home
     }
 
     public void Dispose()
     {
         StopResendTimer();
     }
+
 }
+
+<style>
+    /* SVG Styling */
+    svg {
+        fill: currentColor;
+    }
+
+    .login-page {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Login Card */
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 2rem 2rem 0;
+        text-align: center;
+    }
+
+    .login-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .login-subtitle {
+        font-size: 1rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .card-content {
+        padding: 2rem;
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .label-icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        color: #3b82f6;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+
+    .form-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: rgba(255, 255, 255, 1);
+    }
+
+    .form-input:disabled {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .code-input {
+        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+        letter-spacing: 0.1em;
+        text-align: center;
+        font-size: 1.125rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+
+    .form-input:focus + .input-icon,
+    .input-wrapper:focus-within .input-icon {
+        color: #3b82f6;
+    }
+
+    .input-icon svg {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    .validation-message {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Alert Styles */
+    .alert {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .alert-error {
+        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .alert-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    /* Button Styles */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        width: 100%;
+    }
+
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: 1px solid transparent;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: 1px solid transparent;
+    }
+
+    .btn-success:hover:not(:disabled) {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-outline {
+        background: rgba(255, 255, 255, 0.9);
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-outline:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 1);
+        color: #3b82f6;
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    .btn-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+    }
+
+    .spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: #3b82f6;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        padding: 0;
+        transition: all 0.2s ease;
+    }
+
+    .btn-link:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    /* Verification Info */
+    .verification-info {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(29, 78, 216, 0.02) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 0.875rem;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .verification-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 50%;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .verification-badge svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .verification-text {
+        color: #1e293b;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin: 0 0 1rem 0;
+    }
+
+    .verification-text strong {
+        color: #3b82f6;
+        font-weight: 600;
+    }
+
+    .login-footer p {
+        margin: 0 0 1rem 0;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .login-page {
+            padding: 1rem 0;
+        }
+
+        .card-header {
+            padding: 1.5rem 1.5rem 0;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+
+        .login-subtitle {
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .login-page {
+            padding: 0.5rem 0;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.25rem 0;
+        }
+
+        .card-content {
+            padding: 1.25rem;
+        }
+
+        .form-input {
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+        }
+
+        .input-icon {
+            left: 0.875rem;
+        }
+
+        .input-icon svg {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+</style>
