@@ -12,7 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped(_ => 
-    new HttpClient { BaseAddress = new Uri("https://localhost:8000") }); // todo: configuration...
+    new HttpClient { BaseAddress = new Uri(builder.Configuration["Backend"]!) });
 
 // Register custom authentication services
 builder.Services.AddScoped<IAuthService, AuthService>();

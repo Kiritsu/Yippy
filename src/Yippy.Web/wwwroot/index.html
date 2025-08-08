@@ -13,11 +13,47 @@
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <!-- Loading Container -->
+        <div class="app-loading">
+            <!-- Background Decorations -->
+            <div class="loading-background">
+                <div class="bg-decoration bg-decoration-1"></div>
+                <div class="bg-decoration bg-decoration-2"></div>
+                <div class="bg-decoration bg-decoration-3"></div>
+            </div>
+    
+            <!-- Loading Content -->
+            <div class="loading-content">
+                <!-- Brand Logo -->
+                <div class="loading-brand">
+                    <div class="brand-logo">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h1 class="brand-text">Yippy</h1>
+                </div>
+    
+                <!-- Loading Progress -->
+                <div class="loading-progress-container">
+                    <div class="loading-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                    </div>
+                    <div class="loading-progress-text">Loading your experience...</div>
+                </div>
+    
+                <!-- Loading Status -->
+                <div class="loading-status">
+                    <div class="status-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">

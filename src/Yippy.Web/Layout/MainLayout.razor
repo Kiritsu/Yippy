@@ -23,12 +23,6 @@
                     </svg>
                     Home
                 </NavLink>
-                <NavLink href="/weather" class="nav-link">
-                    <svg class="nav-icon" viewBox="0 0 24 24">
-                        <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                    </svg>
-                    Weather
-                </NavLink>
                 <NavLink href="/services" class="nav-link">
                     <svg class="nav-icon" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -56,12 +50,6 @@
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
                 Home
-            </NavLink>
-            <NavLink href="/weather" class="mobile-nav-link" @onclick="CloseMobileMenu">
-                <svg class="nav-icon" viewBox="0 0 24 24">
-                    <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-                </svg>
-                Weather
             </NavLink>
             <NavLink href="/services" class="mobile-nav-link" @onclick="CloseMobileMenu">
                 <svg class="nav-icon" viewBox="0 0 24 24">
@@ -100,16 +88,6 @@
                     <li><a href="/documentation">Documentation</a></li>
                     <li><a href="/api">API Reference</a></li>
                     <li><a href="/changelog">Changelog</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h4>Company</h4>
-                <ul class="footer-links">
-                    <li><a href="/about">About</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/blog">Blog</a></li>
-                    <li><a href="/careers">Careers</a></li>
                 </ul>
             </div>
 
@@ -435,7 +413,6 @@
         max-width: 1280px;
         margin: 0 auto;
         padding: 2rem 1.5rem;
-        min-height: calc(100vh - 4rem - 200px); /* Adjust based on header and footer height */
     }
 
     /* Footer Styles */
