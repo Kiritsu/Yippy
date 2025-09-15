@@ -1,25 +1,30 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Yippy.Identity;
 
 namespace Yippy.Common.Authentication;
 
 public static class YippyAuthenticationExtensions
 {
-    public static void AddYippyAuthentication(this IServiceCollection @this, Action<AuthorizationOptions>? authorizeAction = null)
+    public static void AddYippyAuthentication(this WebApplicationBuilder @this, Action<AuthorizationOptions>? authorizeAction = null)
     {
-        @this.AddAuthentication(YippyAuthenticationHandler.AuthenticationScheme)
+        @this.Services.AddGrpcClient<TokenValidation.TokenValidationClient>(
+            opt => opt.Address = new Uri(@this.Configuration["Backends:Identity"]!));
+        
+        @this.Services.AddAuthentication(YippyAuthenticationHandler.AuthenticationScheme)
             .AddScheme<YippyAuthenticationOptions, YippyAuthenticationHandler>(
                 YippyAuthenticationHandler.AuthenticationScheme, null);
 
         if (authorizeAction != null)
         {
-            @this.AddAuthorization(authorizeAction);
+            @this.Services.AddAuthorization(authorizeAction);
         }
         else
         {
-            @this.AddAuthorization();
+            @this.Services.AddAuthorization();
         }
     }
 

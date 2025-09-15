@@ -11,7 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="Protos\tokenvalidation.proto" />
+        <Protobuf Include="Protos\tokenvalidation.proto" />
+        <Protobuf Include="Protos\resolvetemplate.proto" />
     </ItemGroup>
     
 </Project>

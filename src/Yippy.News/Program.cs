@@ -26,16 +26,13 @@ builder.Services.AddRabbitMqMessagingService();
 builder.Services.AddDbContext<YippyNewsDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("YippyContext")));
 
-builder.Services.AddYippyAuthentication(authorize =>
+builder.AddYippyAuthentication(authorize =>
 {
     authorize.DefaultPolicy = new AuthorizationPolicyBuilder(
             YippyAuthenticationHandler.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build();
 });
-
-builder.Services.AddGrpcClient<TokenValidation.TokenValidationClient>(
-    opt => opt.Address = new Uri(builder.Configuration["Backends:Identity"]!));
 
 builder.Services.AddValidatorsFromAssemblyContaining<PostCreateRequestValidator>();
 

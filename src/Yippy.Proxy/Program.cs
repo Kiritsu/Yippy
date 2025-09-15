@@ -20,10 +20,11 @@ builder.Services.AddRateLimiter(x =>
     x.RejectionStatusCode = 429;
     x.AddPolicy("AuthPolicy", context =>
     {
+        var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
         var callerIp = context.Request.HttpContext.Connection.RemoteIpAddress?.ToString();
         var authToken = context.Request.Headers.Authorization.ToString();
         
-        var key = callerIp ?? (!string.IsNullOrWhiteSpace(authToken) ? authToken : null) ?? "default-key-unknown-caller";
+        var key = (!string.IsNullOrWhiteSpace(authToken) ? authToken : null) ?? forwardedFor ?? callerIp ?? "default-key-unknown-caller";
         var hashKey = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key)));
         
         return RateLimitPartition.GetSlidingWindowLimiter(hashKey, _ => new SlidingWindowRateLimiterOptions

@@ -21,9 +21,9 @@ public class PostRevision
 {
     public Guid Id { get; set; }
     
-    public Guid PostId { get; set; }
+    public required Guid PostId { get; set; }
     
     public DateTime CreatedAtUtc { get; set; }
 
-    public Guid UserId { get; set; }
+    public required Guid UserId { get; set; }
 }

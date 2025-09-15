@@ -6,6 +6,7 @@ using Yippy.Common.Identity;
 using Yippy.Emailing;
 using Yippy.Emailing.Data;
 using Yippy.Messaging;
+using Yippy.Templating;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,9 @@ builder.Services.AddSingleton<EmailingService>();
 builder.Services.AddHostedService(x => x.GetRequiredService<EmailingService>());
 
 builder.Services.AddScoped<IEmailRepository, EmailRepository>();
+
+builder.Services.AddGrpcClient<TemplateResolver.TemplateResolverClient>(
+    opt => opt.Address = new Uri(builder.Configuration["Backends:Templating"]!));
 
 var app = builder.Build();
 
