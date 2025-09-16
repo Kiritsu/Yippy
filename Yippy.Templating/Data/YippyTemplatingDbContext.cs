@@ -2,7 +2,7 @@
 
 namespace Yippy.Templating.Data;
 
-public class YippyTemplatingDbContext : DbContext
+public class YippyTemplatingDbContext(DbContextOptions<YippyTemplatingDbContext> options) : DbContext(options)
 {
     public DbSet<EmailTemplate> EmailTemplates { get; set; }
     
@@ -34,7 +34,7 @@ public class YippyTemplatingDbContext : DbContext
             
             entity.Property(e => e.Body)
                 .IsRequired()
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("text");
             
             // Indexes
             entity.HasIndex(e => e.Name)

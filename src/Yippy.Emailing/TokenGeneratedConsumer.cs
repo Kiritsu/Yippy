@@ -1,22 +1,35 @@
 ﻿using Yippy.Common.Identity;
 using Yippy.Messaging;
+using Yippy.Templating;
 
 namespace Yippy.Emailing;
 
-public class TokenGeneratedConsumer(EmailingService emailingService, ILogger<TokenGeneratedConsumer> logger) 
+public class TokenGeneratedConsumer(
+    EmailingService emailingService, 
+    TemplateResolver.TemplateResolverClient templateResolver, 
+    ILogger<TokenGeneratedConsumer> logger) 
     : IMessageConsumer<TokenGeneratedMessage>
 {
     public async Task HandleAsync(TokenGeneratedMessage message, CancellationToken cancellationToken = default)
     {
-        // todo: call the gRPC template API to retrieve the token generated message template
+        var emailTemplate = await templateResolver.GetEmailAsync(new ResolveEmailTemplateRequest
+        {
+            TemplateName = "TOKEN_CREATED",
+            Variables = { ["ACCESS_KEY"] = $"{message.AccessKey}" }
+        }, cancellationToken: cancellationToken);
+
+        if (emailTemplate is null)
+        {
+            throw new InvalidOperationException("Failed to retrieve the email template for TOKEN_CREATED");
+        }
         
         var id = await emailingService.EnqueueAsync(new EmailDetail
         {
-            From = new EmailDetail.EmailName("Yippy!", "noreply@alnmrc.com"),
+            From = new EmailDetail.EmailName(emailTemplate.FromName, emailTemplate.FromEmail),
             To = [new EmailDetail.EmailName(message.Email, message.Email)],
-            Subject = "[Yippy!] Your access key has been generated",
-            Body = $"Use this access-key to login to Yippy!: {message.AccessKey}",
-            ContentType = "plain"
+            Subject = emailTemplate.Object,
+            Body = emailTemplate.RawBody,
+            ContentType = "html"
         });
         
         logger.LogInformation("Enqueued email {Id} into the database", id);
