@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.News", "src\Yippy.New
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Web", "src\Yippy.Web\Yippy.Web.csproj", "{3E9A3BC5-92AD-44C3-AFE2-107636BE7EAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Templating", "Yippy.Templating\Yippy.Templating.csproj", "{0C738578-060C-4051-A67C-599934D41C9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yippy.Templating", "src\Yippy.Templating\Yippy.Templating.csproj", "{0C738578-060C-4051-A67C-599934D41C9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
