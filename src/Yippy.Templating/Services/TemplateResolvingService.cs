@@ -83,7 +83,7 @@ public class TemplateResolvingService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error resolving email template '{TemplateName}'", request.TemplateName);
+            logger.ErrorResolvingEmailTemplate(ex, request.TemplateName);
             throw new RpcException(new Status(StatusCode.Internal, 
                 "An error occurred while processing the email template"));
         }
@@ -145,7 +145,7 @@ public class TemplateResolvingService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error resolving SMS template '{TemplateName}'", request.TemplateName);
+            logger.ErrorResolvingSmsTemplate(ex, request.TemplateName);
             throw new RpcException(new Status(StatusCode.Internal, 
                 "An error occurred while processing the SMS template"));
         }

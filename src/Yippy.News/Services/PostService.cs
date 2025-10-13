@@ -25,7 +25,7 @@ public class PostService(YippyNewsDbContext context, ILogger<PostService> logger
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occured when getting a Post");
+            logger.ExceptionGettingPost(ex);
             return null;
         }
     }
@@ -49,7 +49,7 @@ public class PostService(YippyNewsDbContext context, ILogger<PostService> logger
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occured when creating a Post");
+            logger.ExceptionCreatingPost(ex);
             return null;
         }
     }
@@ -61,7 +61,7 @@ public class PostService(YippyNewsDbContext context, ILogger<PostService> logger
             var post = await context.GetPostByIdAsync(id);
             if (post is null)
             {
-                logger.LogDebug("[DeletePost] The post {Id} was not found", id);
+                logger.DeletePostNotFound(id);
                 return EmptyResult.Instance;
             }
 
@@ -71,14 +71,14 @@ public class PostService(YippyNewsDbContext context, ILogger<PostService> logger
 
             if (count <= 0)
             {
-                logger.LogDebug("[DeletePost] Deleting the post {Id} failed ({Count} affected rows)", id, count);
+                logger.DeletePostFailed(id, count);
             }
             
             return EmptyResult.Instance;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occured when deleting the post {Id}", id);
+            logger.ExceptionDeletingPost(ex, id);
             return new FailedResult("Exception", $"An exception occured when deleting the post {id}");
         }
     }
@@ -108,7 +108,7 @@ public class PostService(YippyNewsDbContext context, ILogger<PostService> logger
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occured when updating the post {Id}", id);
+            logger.ExceptionUpdatingPost(ex, id);
             return new FailedResult("Exception", $"An exception occured when updating the post {id}");
         }
     }

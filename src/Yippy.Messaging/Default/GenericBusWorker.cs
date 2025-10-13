@@ -27,7 +27,7 @@ public sealed class GenericBusWorker(IBusControl bus, ILogger<GenericBusWorker> 
     /// <param name="stoppingToken">The cancellation token for stopping the service.</param>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Generic bus worker started");
+        _logger.GenericBusWorkerStarted();
         
         try
         {
@@ -38,16 +38,16 @@ public sealed class GenericBusWorker(IBusControl bus, ILogger<GenericBusWorker> 
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Generic bus worker is stopping due to cancellation request");
+            _logger.GenericBusWorkerStopping();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Fatal error occurred in generic bus worker");
+            _logger.GenericBusWorkerFatalError(ex);
             throw; // Re-throw to let the host handle the failure
         }
         finally
         {
-            _logger.LogInformation("Generic bus worker stopped");
+            _logger.GenericBusWorkerStopped();
         }
     }
 
@@ -70,16 +70,16 @@ public sealed class GenericBusWorker(IBusControl bus, ILogger<GenericBusWorker> 
         try
         {
             await _messageChannel.Writer.WriteAsync(operation, cancellationToken);
-            _logger.LogDebug("Message of type {MessageType} enqueued successfully", typeof(T).Name);
+            _logger.MessageEnqueuedSuccessfully(typeof(T).Name);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            _logger.LogWarning("Message enqueue was cancelled for type {MessageType}", typeof(T).Name);
+            _logger.MessageEnqueueCancelled(typeof(T).Name);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to enqueue message of type {MessageType}", typeof(T).Name);
+            _logger.FailedToEnqueueMessage(ex, typeof(T).Name);
             throw;
         }
     }
@@ -100,15 +100,15 @@ public sealed class GenericBusWorker(IBusControl bus, ILogger<GenericBusWorker> 
         try
         {
             await operation.ExecuteAsync(_bus, timeoutSource.Token);
-            _logger.LogDebug("Message operation completed successfully");
+            _logger.MessageOperationCompleted();
         }
         catch (OperationCanceledException) when (timeoutSource.Token.IsCancellationRequested)
         {
-            _logger.LogError("Message operation timed out after {Timeout} seconds", DefaultTimeout.TotalSeconds);
+            _logger.MessageOperationTimedOut(DefaultTimeout.TotalSeconds);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process message operation");
+            _logger.FailedToProcessMessageOperation(ex);
         }
     }
 

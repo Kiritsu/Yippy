@@ -43,7 +43,7 @@ public class YippyAuthenticationStateProvider : AuthenticationStateProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting authentication state");
+            _logger.ErrorGettingAuthState(ex);
         }
 
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));

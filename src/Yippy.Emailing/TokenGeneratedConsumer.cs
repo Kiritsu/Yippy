@@ -32,6 +32,6 @@ public class TokenGeneratedConsumer(
             ContentType = "html"
         });
         
-        logger.LogInformation("Enqueued email {Id} into the database", id);
+        logger.EmailEnqueued(id);
     }
 }

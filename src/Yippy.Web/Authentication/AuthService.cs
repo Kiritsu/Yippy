@@ -48,7 +48,7 @@ public class AuthService(
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Failed to send email code for {Email}", email);
+            logger.FailedToSendEmailCode(ex, email);
             return false;
         }
     }
@@ -76,7 +76,7 @@ public class AuthService(
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "Failed to validate access key");
+            logger.FailedToValidateAccessKey(ex);
             return null;
         }
     }
@@ -140,7 +140,7 @@ public class AuthService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to refresh token");
+            logger.FailedToRefreshToken(ex);
             await LogoutAsync();
             return false;
         }

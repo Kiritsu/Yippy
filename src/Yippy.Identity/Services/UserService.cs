@@ -26,7 +26,7 @@ public class UserService(YippyIdentityDbContext context, ILogger<UserService> lo
             
             #if DEBUG
             // easier for debugging :D
-            logger.LogDebug("Token generated: {Token}", accessKey);
+            logger.TokenGenerated(accessKey);
             #endif
             
             await transaction.CommitAsync();
@@ -35,7 +35,7 @@ public class UserService(YippyIdentityDbContext context, ILogger<UserService> lo
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An exception occured when creating a UserAccess");
+            logger.ExceptionCreatingUserAccess(ex);
             await transaction.RollbackAsync();
             return null;
         }

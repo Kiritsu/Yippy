@@ -49,7 +49,7 @@ public sealed class EmailingService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured in EmailingService execution loop");
+                _logger.EmailServiceExecutionError(ex);
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
@@ -66,7 +66,7 @@ public sealed class EmailingService : BackgroundService
             return;
         }
 
-        _logger.LogDebug("Processing {Count} emails", emails.Count);
+        _logger.ProcessingEmails(emails.Count);
 
         var lockId = Guid.NewGuid().ToString();
         var lockDuration = TimeSpan.FromMinutes(5);
@@ -76,7 +76,7 @@ public sealed class EmailingService : BackgroundService
             var lockAcquired = await repository.LockEmailAsync(email.Id, lockId, lockDuration);
             if (!lockAcquired)
             {
-                _logger.LogWarning("Could not acquire lock for email {EmailId}", email.Id);
+                _logger.CouldNotAcquireLock(email.Id);
                 continue;
             }
 
@@ -86,7 +86,7 @@ public sealed class EmailingService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing email {EmailId}", email.Id);
+                _logger.ErrorProcessingEmail(ex, email.Id);
                 await HandleEmailError(email, repository, ex.Message);
             }
         }
@@ -121,12 +121,11 @@ public sealed class EmailingService : BackgroundService
 
             await repository.UpdateEmailStatusAsync(queuedEmail.Id, EmailStatus.Sent);
             
-            _logger.LogInformation("Successfully sent email {EmailId} to {RecipientCount} recipients", 
-                queuedEmail.Id, queuedEmail.ToRecipients.Count);
+            _logger.EmailSentSuccessfully(queuedEmail.Id, queuedEmail.ToRecipients.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email {EmailId}", queuedEmail.Id);
+            _logger.FailedToSendEmail(ex, queuedEmail.Id);
             throw;
         }
         finally
@@ -145,16 +144,14 @@ public sealed class EmailingService : BackgroundService
         if (queuedEmail.RetryCount >= maxRetries)
         {
             await repository.UpdateEmailStatusAsync(queuedEmail.Id, EmailStatus.Failed, errorMessage);
-            _logger.LogWarning("Email {EmailId} failed after {RetryCount} attempts: {Error}", 
-                queuedEmail.Id, queuedEmail.RetryCount, errorMessage);
+            _logger.EmailFailedAfterRetries(queuedEmail.Id, queuedEmail.RetryCount, errorMessage);
         }
         else
         {
             var nextRetryAt = DateTime.UtcNow.AddMinutes(Math.Pow(2, queuedEmail.RetryCount + 1));
             await repository.IncrementRetryCountAsync(queuedEmail.Id, nextRetryAt);
             
-            _logger.LogWarning("Email {EmailId} failed (attempt {RetryCount}), will retry at {NextRetryAt}: {Error}", 
-                queuedEmail.Id, queuedEmail.RetryCount + 1, nextRetryAt, errorMessage);
+            _logger.EmailFailedWillRetry(queuedEmail.Id, queuedEmail.RetryCount + 1, nextRetryAt, errorMessage);
         }
     }
 
@@ -169,7 +166,7 @@ public sealed class EmailingService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occured during email cleanup");
+            _logger.EmailCleanupError(ex);
         }
     }
 
@@ -184,7 +181,7 @@ public sealed class EmailingService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occured when resetting expired locks");
+            _logger.ResetExpiredLocksError(ex);
         }
     }
 
