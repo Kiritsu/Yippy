@@ -7,13 +7,10 @@ using Yippy.Templating.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config.ReadFrom.Configuration(ctx.Configuration);
-});
+builder.AddServiceDefaults();
 
 builder.Services.AddGrpc();
-builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("YippyContext")!);
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("YippyContext")!);
 builder.Services.AddYippyCaching(builder.Configuration);
 
 builder.Services.AddDbContext<YippyTemplatingDbContext>(options => 
@@ -23,12 +20,13 @@ builder.Services.AddSingleton<ITemplateVariableProcessor, TemplateVariableProces
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
+
 await using var scope = app.Services.CreateAsyncScope();
 await using var db = scope.ServiceProvider.GetRequiredService<YippyTemplatingDbContext>();
 await db.Database.MigrateAsync();
 
 app.UseYippySerilogRequestLogging();
-app.MapHealthChecks("/health");
 app.MapGrpcService<TemplateResolvingService>();
 
 app.Run();

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0"/>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>010d79e8-9269-467a-9c6c-7c472be34edf</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Yippy.Emailing\Yippy.Emailing.csproj" />
+      <ProjectReference Include="..\Yippy.Identity\Yippy.Identity.csproj" />
+      <ProjectReference Include="..\Yippy.News\Yippy.News.csproj" />
+      <ProjectReference Include="..\Yippy.Proxy\Yippy.Proxy.csproj" />
+      <ProjectReference Include="..\Yippy.Templating\Yippy.Templating.csproj" />
+    </ItemGroup>
+
+</Project>

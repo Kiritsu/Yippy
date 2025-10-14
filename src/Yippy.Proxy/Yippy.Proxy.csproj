@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Yippy.ServiceDefaults\Yippy.ServiceDefaults.csproj" />
       <ProjectReference Include="..\Yippy.Common\Yippy.Common.csproj" />
     </ItemGroup>
 

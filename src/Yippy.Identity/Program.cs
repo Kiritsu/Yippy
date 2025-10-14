@@ -11,10 +11,7 @@ using Yippy.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config.ReadFrom.Configuration(ctx.Configuration);
-});
+builder.AddServiceDefaults();
 
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
@@ -31,7 +28,7 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
 });
 builder.Services.AddAuthorization();
 builder.Services.AddGrpc();
-builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("YippyContext")!);
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("YippyContext")!);
 
 builder.Services.Configure<MessageBrokerOptions>(builder.Configuration.GetSection(MessageBrokerOptions.Name));
 builder.Services.AddRabbitMqMessagingService();
@@ -45,12 +42,13 @@ builder.Services.AddSingleton<JwtService>();
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
+
 await using var scope = app.Services.CreateAsyncScope();
 await using var db = scope.ServiceProvider.GetRequiredService<YippyIdentityDbContext>();
 await db.Database.MigrateAsync();
 
 app.UseYippySerilogRequestLogging();
-app.MapHealthChecks("/health");
 app.MapGrpcService<TokenValidationService>();
 app.UseAuthentication();
 app.UseAuthorization();

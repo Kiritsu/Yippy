@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Serilog;
 using Yippy.Common;
 using Yippy.Common.Identity;
@@ -10,12 +9,9 @@ using Yippy.Templating;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config.ReadFrom.Configuration(ctx.Configuration);
-});
+builder.AddServiceDefaults();
 
-builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("YippyContext")!);
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("YippyContext")!);
 
 builder.Services.Configure<MessageBrokerOptions>(builder.Configuration.GetSection(MessageBrokerOptions.Name));
 builder.Services.AddRabbitMqMessagingService();
@@ -36,11 +32,12 @@ builder.Services.AddGrpcClient<TemplateResolver.TemplateResolverClient>(
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
+
 await using var scope = app.Services.CreateAsyncScope();
 await using var db = scope.ServiceProvider.GetRequiredService<EmailDbContext>();
 await db.Database.MigrateAsync();
 
 app.UseYippySerilogRequestLogging();
-app.MapHealthChecks("/health");
 
 app.Run();

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Yippy.Common;
 using Yippy.Common.Authentication;
-using Yippy.Identity;
 using Yippy.Messaging;
 using Yippy.News;
 using Yippy.News.Data;
@@ -13,12 +12,9 @@ using Yippy.News.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config.ReadFrom.Configuration(ctx.Configuration);
-});
+builder.AddServiceDefaults();
 
-builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("YippyContext")!);
+builder.Services.AddHealthChecks().AddNpgSql(builder.Configuration.GetConnectionString("YippyContext")!);
 
 builder.Services.Configure<MessageBrokerOptions>(builder.Configuration.GetSection(MessageBrokerOptions.Name));
 builder.Services.AddRabbitMqMessagingService();
@@ -41,12 +37,13 @@ builder.Services.AddScoped<IPostService, PostService>();
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
+
 await using var scope = app.Services.CreateAsyncScope();
 await using var db = scope.ServiceProvider.GetRequiredService<YippyNewsDbContext>();
 await db.Database.MigrateAsync();
 
 app.UseYippySerilogRequestLogging();
-app.MapHealthChecks("/health");
 app.UseYippyAuthentication();
 app.MapYippyApi();
 

@@ -6,10 +6,7 @@ using Yippy.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config.ReadFrom.Configuration(ctx.Configuration);
-});
+builder.AddServiceDefaults();
 
 builder.Services
     .AddReverseProxy()
@@ -40,6 +37,8 @@ builder.Services.AddRateLimiter(x =>
 builder.Services.AddCors();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 app.UseForwardedHeaders();
 app.Use(async (context, next) =>
