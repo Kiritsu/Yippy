@@ -6,24 +6,30 @@ using Yippy.Common;
 using Yippy.Common.Identity;
 using Yippy.Identity;
 using Yippy.Identity.Data;
+using Yippy.Identity.Configuration;
 using Yippy.Identity.Services;
 using Yippy.Messaging;
+using Yippy.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
+    var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
+    
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        ValidIssuer = jwtOptions.Issuer,
+        ValidAudience = jwtOptions.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
     };
 });
 builder.Services.AddAuthorization();
@@ -37,8 +43,11 @@ builder.Services.AddMessagePublisher<TokenGeneratedMessage>();
 builder.Services.AddDbContext<YippyIdentityDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("YippyContext")));
 
+builder.Services.AddYippyCaching(builder.Configuration);
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<JwtRevocationService>();
 
 var app = builder.Build();
 

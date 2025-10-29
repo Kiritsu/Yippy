@@ -2,9 +2,9 @@
 
 namespace Yippy.Identity.Services;
 
-public class TokenValidationService(JwtService jwtService) : TokenValidation.TokenValidationBase
+public class TokenValidationService(JwtService jwtService, JwtRevocationService revocationService) : TokenValidation.TokenValidationBase
 {
-    public override Task<JwtTokenValidationResponse> Validate(JwtTokenValidationRequest request, ServerCallContext context)
+    public override async Task<JwtTokenValidationResponse> Validate(JwtTokenValidationRequest request, ServerCallContext context)
     {
         if (request.Token.StartsWith("Bearer "))
         {
@@ -14,10 +14,18 @@ public class TokenValidationService(JwtService jwtService) : TokenValidation.Tok
         
         if (!jwtService.ValidateToken(request.Token, out var jwt))
         {
-            return Task.FromResult(new JwtTokenValidationResponse
+            return new JwtTokenValidationResponse
             {
                 IsSuccess = false
-            });
+            };
+        }
+
+        if (await revocationService.IsTokenRevokedAsync(request.Token, context.CancellationToken))
+        {
+            return new JwtTokenValidationResponse
+            {
+                IsSuccess = false
+            };
         }
 
         var response = new JwtTokenValidationResponse
@@ -31,6 +39,6 @@ public class TokenValidationService(JwtService jwtService) : TokenValidation.Tok
             Value = x.Value
         }));
             
-        return Task.FromResult(response);
+        return response;
     }
 }

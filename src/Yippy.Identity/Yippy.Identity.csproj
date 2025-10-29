@@ -21,6 +21,7 @@
       <ProjectReference Include="..\Yippy.ServiceDefaults\Yippy.ServiceDefaults.csproj" />
       <ProjectReference Include="..\Yippy.Common\Yippy.Common.csproj" />
       <ProjectReference Include="..\Yippy.Grpc\Yippy.Grpc.csproj" />
+      <ProjectReference Include="..\Yippy.Caching\Yippy.Caching.csproj" />
     </ItemGroup>
 
 </Project>
