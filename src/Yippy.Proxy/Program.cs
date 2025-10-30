@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.RateLimiting;
-using Serilog;
 using Yippy.Common;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using Yippy.Common;
 using Yippy.Common.Authentication;
 using Yippy.Messaging;

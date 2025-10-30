@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using Yippy.Common;
 using Yippy.Common.Identity;
 using Yippy.Emailing;

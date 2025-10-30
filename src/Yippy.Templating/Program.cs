@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Serilog;
 using Yippy.Caching;
 using Yippy.Common;
 using Yippy.Templating.Data;
